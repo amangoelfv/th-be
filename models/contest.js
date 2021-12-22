@@ -17,6 +17,9 @@ const contestSchema = new mongoose.Schema(
     startDate: {
       type: String,
     },
+    endDate: {
+      type: String,
+    },
     coverImg: {
       type: String,
     },
