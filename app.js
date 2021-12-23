@@ -5,6 +5,9 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const contestRouter = require("./routes/contests");
 const notifs=require("./routes/notifs")
+const leaderboard = require('./routes/getLeaderboard');
+const orderbook = require('./routes/getOrderbook');
+const portfolio = require("./routes/getPortfolio");
 dotenv.config();
 const bodyParser = require("body-parser");
 
@@ -19,6 +22,9 @@ app.use(bodyParser.json());
 
 app.use(express.json());
 app.use("/contests", contestRouter);
+app.use('/leaderboard', leaderboard);
+app.use('/orderbook', orderbook);
+app.use('/portfolio', portfolio);
 app.get("/", (req, res) => {
   res.send("Welcome to Trade Hunt");
 });
