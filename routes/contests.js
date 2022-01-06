@@ -5,6 +5,7 @@ const currDate=new Date()
 
 router.post("/create", async (req, res) => {
   try {
+    // add error handling for missing fields
     const newContest = new Contest(req.body);
     const contest = await newContest.save();
     res.send(contest)
@@ -14,7 +15,17 @@ router.post("/create", async (req, res) => {
   }
 });
 
-//get active contests
+// get curr contests -> active & upcoming -> endDate:{$gte:currDate}
+
+// active key to tell if contest is active
+//startdate < currdate
+// {
+//   ...contest,
+//      active: true
+// } 
+
+// get all contests -> if(contest.participants.find(user)) => userParticipated: true? false
+// start <today & end > today
 router.get('/active',async(req,res)=>{
   try{
    const activeContest=await Contest.find({endDate:{$gte:currDate}})
@@ -34,4 +45,16 @@ router.get('/past',async (req,res)=>{
   }
 })
 
+//register for contest
+// contest -> participants mein insert user id orders array = []
+// wallet amount = contest ki initial money
+
+
+//getAllAssets
+
+
+//contest.assets -> id -> redstone(id) -> symbol, name, token, cyrr price, pnl
+//getAssetDetails
+//createOrder
+///getHistory
 module.exports = router;

@@ -12,5 +12,9 @@ router.get('/',async(req,res)=>{
       res.status(500).json(err);
     }
 })
+
+//add notif
+//delete notif
+//update notif
   
 module.exports = router;

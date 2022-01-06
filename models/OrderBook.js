@@ -25,11 +25,6 @@ const orderBookSchema = new mongoose.Schema(
             type: Number,
             required: true
         },
-        _id: {
-            type: String,
-            required: true,
-            unique: true
-        }
     }
 );
 

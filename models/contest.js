@@ -16,13 +16,35 @@ const contestSchema = new mongoose.Schema(
     },
     startDate: {
       type: String,
+      required: true,
     },
     endDate: {
       type: String,
+      required: true,
     },
     coverImg: {
       type: String,
+      required: true,
     },
+    initialSum: {
+      type: Number,
+      required: true
+    },
+    prizes: {
+      type: []
+    },
+    assets: {
+      type: [String],
+      required: true
+    },
+    // participants: {
+    //   type: [{
+    //     user_id: igdgi,
+    //     walletAmount
+    //     orders: [],
+    //     holdings: []
+    //   }]
+    // }
   },
   {
     timestamps: true,
