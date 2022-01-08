@@ -1,39 +1,43 @@
 const router = require("express").Router();
 const Contest = require("../models/contest");
-
+const redstone = require('redstone-api');
 const currDate=new Date()
 
 router.post("/create", async (req, res) => {
   try {
-    // add error handling for missing fields
+    // add error handling for missing fields <--DONE
     const newContest = new Contest(req.body);
-    const contest = await newContest.save();
-    res.send(contest)
-    res.status(200).json("Contest Created Successfully");
+    await newContest.save();
+    res.status(200).json({message:"Contest Created Successfully",data:{newContest}});
   } catch (err) {
-    res.status(500).json(err);
+    res.status(err.status || 500).json({
+      error: {
+        name:err.name,
+        message: err.message || "Internal Server Error",
+      },
+    });
   }
 });
 
-// get curr contests -> active & upcoming -> endDate:{$gte:currDate}
+// get curr contests -> active & upcoming -> endDate:{$gte:currDate}  
 
-// active key to tell if contest is active
+router.get('/active',async(req,res)=>{
+  try{
+   const currContest=await Contest.find({endDate:{$gte:currDate}})
+     // active key to tell if contest is active
 //startdate < currdate
 // {
 //   ...contest,
 //      active: true
 // } 
-
-// get all contests -> if(contest.participants.find(user)) => userParticipated: true? false
-// start <today & end > today
-router.get('/active',async(req,res)=>{
-  try{
-   const activeContest=await Contest.find({endDate:{$gte:currDate}})
-   res.status(200).json(activeContest)
+   res.status(200).send(currContest)
   }catch(err){
     res.status(500).json(err);
   }
 })
+
+// get all contests -> if(contest.participants.find(user)) => userParticipated: true? false
+
 
 //get past contests
 router.get('/past',async (req,res)=>{
@@ -51,9 +55,16 @@ router.get('/past',async (req,res)=>{
 
 
 //getAllAssets
-
-
 //contest.assets -> id -> redstone(id) -> symbol, name, token, cyrr price, pnl
+router.get('/:contestId/assets',async(req,res)=>{
+  try{
+    const contest=await Contest.find({_id:req.params.contestId})
+    res.status(200).send(contest.assets)
+  }catch(err){
+    res.status(500).json(err);
+  }
+})
+
 //getAssetDetails
 //createOrder
 ///getHistory
