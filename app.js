@@ -33,10 +33,10 @@ app.get("/", (req, res) => {
 });
 
 app.use('/user', userRouter);
-app.use("/contests", contestRouter);
-app.use('/leaderboard', leaderboard);
-app.use('/orderbook', orderbook);
-app.use('/portfolio', portfolio);
+app.use("/contests",auth, contestRouter);
+app.use('/leaderboard',auth, leaderboard);
+app.use('/orderbook',auth, orderbook);
+app.use('/portfolio',auth, portfolio);
 app.use("/news",auth,notifs);
 
 app.listen(port, () => {
