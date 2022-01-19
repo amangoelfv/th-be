@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/user", userRouter);
-app.use("/contests", auth, contestRouter);
+app.use("/contests", contestRouter);
 app.use("/leaderboard", auth, leaderboard);
 app.use("/orderbook", auth, orderbook);
 app.use("/portfolio", auth, portfolio);

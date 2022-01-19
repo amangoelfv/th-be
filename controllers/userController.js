@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 
 const generateToken = require("../utils/generateToken");
 const User = require("../models/user");
+const { generateUsername } = require("../utils/helpers");
 
 const registerUser = async (req, res) => {
   const { name, email, password, phone } = req.body;
@@ -27,15 +28,18 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     console.log(name, email, phone, hashedPassword);
-    const user = new User({
+    const userSummary = {
       name,
       email,
       phone,
       password: hashedPassword,
-    });
+      profileAvatar: 1,
+      userName: generateUsername(name, phone),
+    };
+    const user = new User(userSummary);
     await user.save();
     const token = generateToken(user._id);
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, user: userSummary });
   } catch (err) {
     return res
       .status(500)
