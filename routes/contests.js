@@ -88,12 +88,15 @@ router.get("/test", async (req, res) => {
 
 
 router.post('/registerForContest', (req, res) => {
-  const { inviteCode, contestId, user } = req.body
+  console.log(req)
+  const { user } = req
+  console.log(user)
+  const { inviteCode, contestId } = req.body
   try {
-    Contest.findOne({ _id: contestId, userTokens: { $in: [inviteCode] } }).then(data => {
+    Contest.findOne({ _id: contestId, userTokens: { $in: [inviteCode] }, startDate: { $lte: new Date() }, endDate: { $gte: new Date() } }).then(data => {
       if (!data)
         return res.status(404).send('Contest not found!')
-      Contest.findByOneAndUpdate({ _id: contestId }, {
+      Contest.findOneAndUpdate({ _id: contestId }, {
         $pull: {
           userTokens: {
             $in: [inviteCode]

@@ -16,11 +16,11 @@ const contestSchema = new mongoose.Schema(
 			required: [true, "Contest description is required"],
 		},
 		startDate: {
-			type: String,
+			type: Date,
 			required: [true, "Contest timeline is required"],
 		},
 		endDate: {
-			type: String,
+			type: Date,
 			required: [true, "Contest timeline is required"],
 		},
 		coverImg: {
