@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const Contest = require("../models/contest");
 const redstone = require("redstone-api");
-const contest = require("../models/contest");
 const currDate = new Date();
 
 router.post("/create", async (req, res) => {
@@ -62,15 +61,7 @@ router.get("/past", async (req, res) => {
 
 //getAllAssets
 //contest.assets -> id -> redstone(id) -> symbol, name, token, cyrr price, pnl
-router.get("/:contestId/assets", async (req, res) => {
-  try {
-    const contest = await Contest.find({ _id: req.params.contestId });
-    //contest.assets.forEach(async (asset) => {});
-    res.status(200).send(contest.assets);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+
 
 router.get("/test", async (req, res) => {
   try {
@@ -91,10 +82,11 @@ router.get("/test", async (req, res) => {
 // array of allowed assets 
 getCurrentPrice
 //getAssetDetails
+
 //createOrder
 ///getHistory
-module.exports = router;
 
+module.exports = router;
 
 
 
@@ -115,7 +107,7 @@ module.exports = router;
 // }
 
 // function getAllAssets(contestId) {
-//   if (!assets_cache.data || timstamp is older than 15 minutes) {
+//   if (!assets_cache.data || timestamp is older than 15 minutes) {
 //     await cache.updateChache();
 
 //   }
