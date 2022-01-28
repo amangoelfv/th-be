@@ -20,7 +20,8 @@ const registerUser = async (req, res) => {
     if (existingUser) {
       console.log(existingUser);
       let message = "E-mail already in use";
-      if (existingUser.phone === phone) message = "Phone already in use";
+      if (existingUser.phone === phone)
+        message = "Phone already in use";
       if (existingUser.phone === phone && existingUser.email === email)
         message = "Phone & Email already in use";
       return res.status(400).json({ message });
@@ -75,4 +76,57 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const updatePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.params.userId;
+
+  try {
+    if (!(oldPassword && newPassword)) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+
+    const existingUser = await User.findById(userId);
+    if (!existingUser)
+      return res.status(404).json({ message: "User doesn't exist" });
+
+    const isPasswordValid = await bcrypt.compare(
+      oldPassword,
+      existingUser.password
+    );
+    if (!isPasswordValid)
+      return res.status(401).json({ message: "Invalid password" });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    existingUser.password = hashedPassword;
+    await existingUser.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+const updateAvatar = async (req, res) => {
+  const { oldAvatar, newAvatar } = req.body;
+  const userId = req.params.userId;
+
+  try {
+    if (!(oldAvatar && newAvatar)) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+
+    const existingUser = await User.findById(userId);
+    if (!existingUser)
+      return res.status(404).json({ message: "User doesn't exist" });
+
+    existingUser.profileAvatar = newAvatar;
+    await existingUser.save();
+
+    return res.status(200).json({ message: "Avatar updated successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+}
+
+module.exports = { registerUser, loginUser, updatePassword, updateAvatar };
