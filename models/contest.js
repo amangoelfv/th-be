@@ -16,11 +16,11 @@ const contestSchema = new mongoose.Schema(
 			required: [true, "Contest description is required"],
 		},
 		startDate: {
-			type: String,
+			type: Date,
 			required: [true, "Contest timeline is required"],
 		},
 		endDate: {
-			type: String,
+			type: Date,
 			required: [true, "Contest timeline is required"],
 		},
 		coverImg: {
@@ -38,8 +38,9 @@ const contestSchema = new mongoose.Schema(
 			type: [String],
 			required: [true, "Asset/s is/are required"],
 		},
-		leaderBoard: {
-			id
+		leaderBoardId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Leaderboard",
 		},
 		// participants: {
 		//   type: [{
@@ -53,7 +54,12 @@ const contestSchema = new mongoose.Schema(
 		// email: akjh,
 		// userToken: "87638"
 		// }]
-		
+		userTokens: [
+			{
+				type: String,
+				unique: true
+			}
+		],
 		participants: [
 			{
 				user_id: {
@@ -78,6 +84,10 @@ const contestSchema = new mongoose.Schema(
 					type: [],
 					required: true,
 				},
+				userToken: {
+					type: String,
+					required: true
+				}
 			},
 		],
 	},
