@@ -178,9 +178,7 @@ router.get("/test", async (req, res) => {
 
 
 router.post('/registerForContest', (req, res) => {
-  console.log(req)
   const { user } = req
-  console.log(user)
   const { inviteCode, contestId } = req.body
   try {
     Contest.findOne({ _id: contestId, userTokens: { $in: [inviteCode] }, startDate: { $lte: new Date() }, endDate: { $gte: new Date() } }).then(data => {
