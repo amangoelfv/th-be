@@ -80,11 +80,46 @@ router.get("/test", async (req, res) => {
 
 //getAllAssets
 // array of allowed assets 
-getCurrentPrice
+// getCurrentPrice
 //getAssetDetails
 
 //createOrder
 ///getHistory
+
+
+router.post('/registerForContest', (req, res) => {
+  const { inviteCode, contestId, user } = req.body
+  try {
+    Contest.findOne({ _id: contestId, userTokens: { $in: [inviteCode] } }).then(data => {
+      if (!data)
+        return res.status(404).send('Contest not found!')
+      Contest.findByOneAndUpdate({ _id: contestId }, {
+        $pull: {
+          userTokens: {
+            $in: [inviteCode]
+          }
+        },
+        $push: {
+          participants:
+          {
+            user_id: user.id,
+            walletAmount: data.initialSum,
+            orders: [],
+            portfolio: 0,
+            holdings: [],
+            userToken: inviteCode
+          }
+        }
+      }).then(data => {
+        res.send("Registered Successfully!")
+      })
+    })
+  }
+  catch (e) {
+    console.log(e)
+    res.status(500).send(e)
+  }
+})
 
 module.exports = router;
 
@@ -124,6 +159,7 @@ module.exports = router;
 // contest -> particpants -> initialize new participant
 // user -> contests -> contest.id push
 // }
+
 
 
 // getAllContests =() => {
