@@ -1,33 +1,20 @@
 const mongoose = require("mongoose");
 
-const leaderBoardSchema = new mongoose.Schema(
+const leaderBoardSchema = new mongoose.Schema({
+  contestId,
+  Leaderboard: [
     {
-        currentRank: {
-            type: Number,
-            required: true
-        },
-        Leaderboard: {
-            position: {
-                type: Number,
-                required: true
-            },
-            User: {
-                name: {
-                    type: Number,
-                    required: true
-                },
-                user_id: {
-                    type: String,
-                    required: true,
-                    unique: true
-                },
-                username: {
-                    type: String,
-                    required: true
-                }
-            }
-        }
-    }
-);
+      position: {
+        type: Number,
+        required: true,
+      },
+      user: {
+        type: String,
+        required: true,
+        unique: true,
+      },
+    },
+  ],
+});
 
 module.exports = mongoose.model("Leaderboard", leaderBoardSchema);

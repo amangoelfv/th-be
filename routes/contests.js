@@ -123,3 +123,23 @@ module.exports = router;
 // }
 
 // function getAssetDetails()
+
+
+//registerForContest = (inviteCode, contestId) {
+// token.mail;
+// contestId -> inviteTokens -> $in(token.mail[inviteCode])
+// userTokens -> user ka corresponding token
+// contest -> particpants -> initialize new participant
+// user -> contests -> contest.id push
+// }
+
+
+// getAllContests =() => {
+// active & upcoming
+// constest start end date
+// const userCOntest
+//   all contests ->
+//   registered: true,
+//   participnts -> user.exists
+// img, name, organisaer, startTime, endTime, registered
+// }

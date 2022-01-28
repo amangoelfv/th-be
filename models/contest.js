@@ -38,6 +38,9 @@ const contestSchema = new mongoose.Schema(
 			type: [String],
 			required: [true, "Asset/s is/are required"],
 		},
+		leaderBoard: {
+			id
+		},
 		// participants: {
 		//   type: [{
 		//     user_id: igdgi,
@@ -46,6 +49,11 @@ const contestSchema = new mongoose.Schema(
 		//     holdings: []
 		//   }]
 		// }
+		//userTokens: [{
+		// email: akjh,
+		// userToken: "87638"
+		// }]
+		
 		participants: [
 			{
 				user_id: {
@@ -62,6 +70,10 @@ const contestSchema = new mongoose.Schema(
 					type: [],
 					required: true,
 				},
+				portfolio: {
+					type: Number,
+					required: true
+				},
 				holdings: {
 					type: [],
 					required: true,
@@ -73,5 +85,6 @@ const contestSchema = new mongoose.Schema(
 		timestamps: true,
 	}
 );
+
 
 module.exports = mongoose.model("contest", contestSchema);
