@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to Trade Hunt");
 });
 
-app.use("/user", auth, userRouter);
+app.use("/user", userRouter);
 app.use("/contests", auth, contestRouter);
 app.use("/leaderboard", auth, leaderboard);
 app.use("/orderbook", auth, orderbook);

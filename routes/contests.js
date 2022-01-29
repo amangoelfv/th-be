@@ -114,20 +114,46 @@ router.post("/create", async (req, res) => {
 });
 
 // get curr contests -> active & upcoming -> endDate:{$gte:currDate}
-router.get("/active", async (req, res) => {
+router.get("/getActiveAndUpcomingContests", async (req, res) => {
+  console.log("hi");
+  const { user } = req;
+  const currDate = new Date();
   try {
-    const currContest = await Contest.find({ endDate: { $gte: currDate } });
-    // active key to tell if contest is active
-    //startdate < currdate
-    // {
-    //   ...contest,
-    //      active: true
-    // }
-    if (currContest.startDate <= currDate) {
-      currContest = { ...currContest, active: true };
-    } else currContest = { ...currContest, active: false };
-
-    res.status(200).send(currContest);
+    const contests = await Contest.find({ endDate: { $gte: currDate } });
+    res.status(200).send({
+      success: true,
+      data: contests.map((contest) => {
+        const {
+          _id,
+          title,
+          organiser,
+          startDate,
+          endDate,
+          coverImg,
+          participants,
+          desc,
+          prizes,
+          initialSum,
+        } = contest;
+        return {
+          _id,
+          title,
+          organiser,
+          startDate,
+          endDate,
+          coverImg,
+          desc,
+          prizes,
+          initialSum,
+          active: startDate <= currDate,
+          registered: participants.findIndex(
+            (participant) => participant.user_id == user.id
+          )
+            ? true
+            : false,
+        };
+      }),
+    });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -152,7 +178,6 @@ router.get("/past", async (req, res) => {
 //getAllAssets
 //contest.assets -> id -> redstone(id) -> symbol, name, token, cyrr price, pnl
 
-
 router.get("/test", async (req, res) => {
   try {
     const symbols = ["AR", "BTC", "UNI", "ETH", "EUR"];
@@ -169,52 +194,64 @@ router.get("/test", async (req, res) => {
 });
 
 //getAllAssets
-// array of allowed assets 
+// array of allowed assets
 // getCurrentPrice
 //getAssetDetails
 
 //createOrder
 ///getHistory
 
-
-router.post('/registerForContest', (req, res) => {
-  const { user } = req
-  const { inviteCode, contestId } = req.body
+router.post("/registerForContest", (req, res) => {
+  const { user } = req;
+  const { inviteCode, contestId } = req.body;
   try {
-    Contest.findOne({ _id: contestId, userTokens: { $in: [inviteCode] }, startDate: { $lte: new Date() }, endDate: { $gte: new Date() } }).then(data => {
-      if (!data)
-        return res.status(404).send('Contest not found!')
-      Contest.findOneAndUpdate({ _id: contestId }, {
-        $pull: {
-          userTokens: {
-            $in: [inviteCode]
-          }
-        },
-        $push: {
-          participants:
-          {
-            user_id: user.id,
-            walletAmount: data.initialSum,
-            orders: [],
-            portfolio: 0,
-            holdings: [],
-            userToken: inviteCode
-          }
+    Contest.findOne({
+      _id: contestId,
+      userTokens: { $in: [inviteCode] },
+      startDate: { $lte: new Date() },
+      endDate: { $gte: new Date() },
+    }).then((data, rs) => {
+      if (!data) {
+        return res
+          .status(404)
+          .send({ success: false, err: "Invalid invite code" });
+      }
+      if (data.participants.findIndex((p) => p.user_d == user.id) >= 0) {
+        console.log(data.participants.findIndex((p) => p.user_d == user.id));
+        return res
+          .status(404)
+          .send({ success: false, err: "User already registered" });
+      }
+      Contest.findOneAndUpdate(
+        { _id: contestId },
+        {
+          $pull: {
+            userTokens: {
+              $in: [inviteCode],
+            },
+          },
+          $push: {
+            participants: {
+              user_id: user.id,
+              walletAmount: data.initialSum,
+              orders: [],
+              portfolio: data.initialSum,
+              holdings: [],
+              userToken: inviteCode,
+            },
+          },
         }
-      }).then(data => {
-        res.send("Registered Successfully!")
-      })
-    })
+      ).then((data) => {
+        res.send({ message: "Registered Successfully!", success: true });
+      });
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send(e);
   }
-  catch (e) {
-    console.log(e)
-    res.status(500).send(e)
-  }
-})
+});
 
 module.exports = router;
-
-
 
 // assets_cache = {
 //   data: [
@@ -242,7 +279,6 @@ module.exports = router;
 
 // function getAssetDetails()
 
-
 //registerForContest = (inviteCode, contestId) {
 // token.mail;
 // contestId -> inviteTokens -> $in(token.mail[inviteCode])
@@ -250,8 +286,6 @@ module.exports = router;
 // contest -> particpants -> initialize new participant
 // user -> contests -> contest.id push
 // }
-
-
 
 // getAllContests =() => {
 // active & upcoming
