@@ -202,6 +202,24 @@ router.get("/test", async (req, res) => {
 //createOrder
 ///getHistory
 
+router.get("/getHoldings/:contestId", async (req, res) => {
+  const { user } = req;
+  const { contestId } = req.params;
+  try {
+    Contest.findOne({ _id: contestId }).then((contest) => {
+      const userObj = contest.participants.find((u) => u.user_id == user.id);
+      res.status(200).send({
+        success: true,
+        holdings: userObj.holdings,
+      });
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      error: e,
+    });
+  }
+});
 router.get("/getUserPortfolio/:contestId", async (req, res) => {
   const { user } = req;
   const { contestId } = req.params;
@@ -228,13 +246,11 @@ router.get("/getUserPortfolio/:contestId", async (req, res) => {
           for (const holding of holdings) {
             portfolio += prices[holding.token] * holding.qty;
           }
-          res
-            .status(200)
-            .send({
-              portfolio,
-              success: true,
-              change: ((portfolio - initialSum) / 100).toFixed(2),
-            });
+          res.status(200).send({
+            portfolio,
+            success: true,
+            change: ((portfolio - initialSum) / 100).toFixed(2),
+          });
         });
       });
   } catch (e) {
