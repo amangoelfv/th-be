@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Contest = require("../models/contest");
 const redstone = require("redstone-api");
 const currDate = new Date();
+const fetch = require("node-fetch");
 const allowedSymbols = {
   BTCUSDT: {
     icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/btc-bitcoin_rtptep.png",
@@ -200,6 +201,49 @@ router.get("/test", async (req, res) => {
 
 //createOrder
 ///getHistory
+
+router.get("/getUserPortfolio/:contestId", async (req, res) => {
+  const { user } = req;
+  const { contestId } = req.params;
+  const symbols = Object.keys(allowedSymbols);
+  try {
+    fetch("https://api.binance.com/api/v3/ticker/price")
+      .then((res) => res.json())
+      .then((d) => {
+        let prices = {};
+        for (let symbol of d) {
+          if (symbols.includes(symbol.symbol)) {
+            prices[symbol.symbol] = Number(symbol.price);
+          }
+        }
+        Contest.findOne({
+          _id: contestId,
+        }).then((contest) => {
+          const initialSum = contest.initialSum;
+          const userObj = contest.participants.find(
+            (u) => u.user_id == user.id
+          );
+          const { walletAmount, holdings } = userObj;
+          let portfolio = walletAmount;
+          for (const holding of holdings) {
+            portfolio += prices[holding.token] * holding.qty;
+          }
+          res
+            .status(200)
+            .send({
+              portfolio,
+              success: true,
+              change: ((portfolio - initialSum) / 100).toFixed(2),
+            });
+        });
+      });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      error: e,
+    });
+  }
+});
 
 router.post("/registerForContest", (req, res) => {
   const { user } = req;
