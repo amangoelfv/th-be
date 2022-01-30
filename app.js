@@ -35,6 +35,6 @@ app.use("/user", userRouter);
 app.use("/contests", auth, contestRouter);
 app.use("/news", auth, notifs);
 
-app.listen(port, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log(`Tradehunt Backend is running at http://localhost:${port}`);
 });
