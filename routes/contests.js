@@ -308,6 +308,11 @@ router.post("/sellOrder", async (req, res) => {
       (user) => user.user_id == req.user.id
     );
     const holding = Seller.holdings.find((holding) => holding.token === token);
+    if (!holding) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Holding does not exist" });
+    }
     if (qty > holding.qty) {
       return res
         .status(400)
@@ -322,63 +327,35 @@ router.post("/sellOrder", async (req, res) => {
         };
       } else return i;
     });
-    // Contest.findOne({ _id: contestId }).then((cc) => {
-    //   cc.participants.find((user) => user.user_id.toString() === req.user.id)
-    //   .then((data) => {
-    //     data.findOneAndUpdate(
-    //       { token: token },
-    //       { $set: { "holdings.$[elem].qty": holding.qty } },
-    //       { arrayFilters: [{ "elem.token": { $eq: token } }] }
-    //     )
-    //   });
-    // })
     if (qty * rate < 1) {
       return res.status(400).send({
         success: false,
         message: "The minimum deal should be of $1.",
       });
     }
+    const newWalletAmt = Seller.walletAmount + qty * rate;
     if (holding.qty.toFixed(5) == 0) {
-      console.log("making empty");
-      const newHoldings = Seller.holdings.filter((i) => i.token != token);
-      const newWalletAmt = Seller.walletAmount + qty * rate;
-      Contest.updateOne(
-        { _id: contestId },
-        {
-          $set: {
-            "participants.$[user].holdings": newHoldings,
-            "participants.$[user].walletAmount": newWalletAmt,
-          },
+      Contest.findOneAndUpdate({ _id: contestId, 'participants.user_id': req.user.id }, {
+        $pull: {
+          'participants.$.holdings': {
+            token: token
+          }
         },
-        {
-          multi: false,
-          arrayFilters: [
-            {
-              "user.user_id": { $eq: req.user.id },
-            },
-          ],
+        $set: {
+          'participants.$.walletAmount': newWalletAmt
         }
-      ).then((d) => console.log("s", d));
+      }).then(data => {
+        console.log("s", data)
+      })
     } else {
-      const newWalletAmt = Seller.walletAmount + qty * rate;
-      console.log("hello");
-      Contest.updateOne(
-        { _id: contestId },
-        {
-          $set: {
-            "participants.$[user].holdings": newHoldings,
-            "participants.$[user].walletAmount": newWalletAmt,
-          },
-        },
-        {
-          multi: false,
-          arrayFilters: [
-            {
-              "user.user_id": { $eq: req.user.id },
-            },
-          ],
+      Contest.findOneAndUpdate({ _id: contestId, 'participants.user_id': req.user.id }, {
+        $set: {
+          'participants.$.holdings': newHoldings,
+          'participants.$.walletAmount': newWalletAmt
         }
-      ).then((d) => console.log("s", d));
+      }).then(data => {
+        console.log("s", data)
+      })
     }
 
     // await contest.save();
@@ -390,39 +367,64 @@ router.post("/sellOrder", async (req, res) => {
   //decrease holdings by qty
 });
 
-router.get("/buyrequest", async (req, res) => {
-  const qty = req.body.qty;
-  const rate = req.body.rate;
-  const token = req.body.token;
-  const userId = req.user.id;
-  
+
+router.post("/buyOrder", async (req, res) => {
+  const { qty, token, rate, contestId } = req.body;
+
   try {
-    const buy_data = await Contest.find({ _id: req.body.contestId })
-    .participants.findOne((user) => {
-      user.user_id.toString() == userId;
-    })
-
-    const buyholdings = buy_data.holdings;
-
-    buyholdings.find((holding) => {
-      if(holding.token == token){
-        if (qty * rate >= buy_data.walletAmount) {
-          buy_data.walletAmount = buy_data.walletAmount - qty * rate;
-          holding.qty -= qty;
-        }
-        else{
-          return res.status(400).json({ message: "Invalid Request" });
-        }
+    if (!qty || !token || !rate)
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing Parameters" });
+    const contest = await Contest.findOne({ _id: contestId });
+    const Seller = contest.participants.find(
+      (user) => user.user_id == req.user.id
+    );
+    var holding = Seller.holdings.find((holding) => holding.token === token);
+    if (qty * rate > Seller.walletAmount) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Not enough amount in wallet" });
+    }
+    var newHoldings = Seller.holdings.map((i) => {
+      if (i.token == token) {
+        return {
+          qty: holding.qty + qty,
+          token,
+        };
+      } else return i;
+    });
+    if (!holding) {
+      newHoldings.push({
+        qty,
+        token
+      })
+    }
+    console.log(newHoldings)
+    if (qty * rate < 1) {
+      return res.status(400).send({
+        success: false,
+        message: "The minimum deal should be of $1.",
+      });
+    }
+    const newWalletAmt = Seller.walletAmount - qty * rate;
+    Contest.findOneAndUpdate({ _id: contestId, 'participants.user_id': req.user.id }, {
+      $set: {
+        'participants.$.holdings': newHoldings,
+        'participants.$.walletAmount': newWalletAmt
       }
+    }).then(data => {
+      console.log("s", data)
     })
 
-    await buy_data.save();
-    res.status(200).json(buy_data);
+    // await contest.save();
+    res.status(200).json({ message: "Order sold successfully" });
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json(err.message);
   }
-
-})
+  //qty*rate add to wallet
+  //decrease holdings by qty
+});
 
 module.exports = router;
 
@@ -442,7 +444,7 @@ module.exports = router;
 //   }
 // }
 
-function updateCache(){
+function updateCache() {
   fetch('https://cryptocurrencyliveprices.com/api/', {
     method: 'POST',
     headers: {
@@ -452,8 +454,8 @@ function updateCache(){
     body: JSON.stringify({
       symbol: coin_symbol,
       name: coin_name,
-      daychange: coin_percent_change_7d, 
-      currprice: coin_price_usd*70 // convert to inr
+      daychange: coin_percent_change_7d,
+      currprice: coin_price_usd * 70 // convert to inr
     })
   })
 }
