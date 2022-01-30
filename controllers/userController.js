@@ -30,21 +30,19 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     console.log(name, email, phone, hashedPassword);
     const userSummary = {
-      name,
-      email,
-      phone,
-      password: hashedPassword,
-      profileAvatar: 1,
-      userName: generateUsername(name, phone),
+		name,
+		email,
+		password: hashedPassword,
+		phone,
+		profileAvatar: 1,
+		userName: generateUsername(name, phone),
     };
     const user = new User(userSummary);
     await user.save();
     const token = generateToken(user._id);
-    return res.status(200).json({ token, user: userSummary });
+    return res.status(200).json({ token,message:"New user registered successfully" });
   } catch (err) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Something went wrong", err });
+    return res.status(500).json({ success: false, message: "Something went wrong", err });
   }
 };
 
@@ -108,11 +106,11 @@ const updatePassword = async (req, res) => {
 };
 
 const updateAvatar = async (req, res) => {
-  const { oldAvatar, newAvatar } = req.body;
+  const { newAvatar } = req.body;
   const userId = req.params.userId;
 
   try {
-    if (!(oldAvatar && newAvatar)) {
+    if (!newAvatar) {
       return res.status(400).json({ message: "Missing fields" });
     }
 
