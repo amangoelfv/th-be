@@ -212,15 +212,11 @@ router.post("/registerForContest", (req, res) => {
       endDate: { $gte: new Date() },
     }).then((data, rs) => {
       if (!data) {
-        return res
-          .status(404)
-          .send({ success: false, err: "Invalid invite code" });
+        return res.status(404).send({ success: false, err: "Invalid invite code" });
       }
       if (data.participants.findIndex((p) => p.user_d == user.id) >= 0) {
         console.log(data.participants.findIndex((p) => p.user_d == user.id));
-        return res
-          .status(404)
-          .send({ success: false, err: "User already registered" });
+        return res.status(404).send({ success: false, err: "User already registered" });
       }
       Contest.findOneAndUpdate(
         { _id: contestId },
@@ -249,6 +245,69 @@ router.post("/registerForContest", (req, res) => {
     console.log(e);
     res.status(500).send(e);
   }
+});
+
+router.post("/sellOrder", async (req, res) => {
+  const contestId = req.body.contestId;
+  const qty = req.body.qty;
+  const token = req.body.token;
+  const rate = req.body.rate;
+  try {
+    if (!qty)
+      return res.status(400).json({ message: "Invalid Request" });
+    const contest = await Contest.findOne({ _id: contestId });
+    const Seller = contest.participants.find((user) => user.user_id.toString() === req.user.id);
+    const holding = Seller.holdings.find((holding) => holding.token === token)
+    if (qty > holding.qty)
+      return res.status(400).json({ message: "Invalid Request" });
+    holding.qty -= qty;
+    
+    // Contest.findOne({ _id: contestId }).then((cc) => {
+    //   cc.participants.find((user) => user.user_id.toString() === req.user.id)
+    //   .then((data) => {
+    //     data.findOneAndUpdate(
+    //       { token: token },
+    //       { $set: { "holdings.$[elem].qty": holding.qty } },
+    //       { arrayFilters: [{ "elem.token": { $eq: token } }] }
+    //     )
+    //   });
+    // })
+
+    if (holding.qty === 0) {
+      //method 1--->  
+      //Seller.holdings.filter((holding) => holding.token !== token);
+      //method2---> 
+      //Contest.findOne({ _id: contestId }).then((cc) => {
+      //     cc.participants.find((user) => user.user_id.toString() === req.user.id)
+      //       .then((data) => {
+      //         data.update({ _id: req.user.id }, { $pull: { holdings: { token: token } } }, { multi: true });
+      //       })
+      //   })
+      //Method3--->
+      Contest.updateOne(
+			{ _id: contestId },
+			{
+				participants: [
+					{
+						user_id: req.user.id,
+						$pull: {
+							holdings: { token: token },
+						},
+					},
+				],
+			}
+		);
+    }
+		const newWalletAmt = Seller.walletAmount + qty * rate;
+		Seller.walletAmount = newWalletAmt;
+
+		await contest.save();
+		res.status(200).json({ message: "Order sold successfully" });
+	} catch (err) {
+		res.status(500).json(err.message);
+	}
+	//qty*rate add to wallet
+	//decrease holdings by qty
 });
 
 module.exports = router;
