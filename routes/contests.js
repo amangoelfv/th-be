@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const Contest = require("../models/contest");
-const redstone = require("redstone-api");
 const currDate = new Date();
 const fetch = require("node-fetch");
 const allowedSymbols = {
@@ -177,23 +176,6 @@ router.get("/past", async (req, res) => {
 // wallet amount = contest ki initial money
 
 //getAllAssets
-//contest.assets -> id -> redstone(id) -> symbol, name, token, cyrr price, pnl
-
-router.get("/test", async (req, res) => {
-  try {
-    const symbols = ["AR", "BTC", "UNI", "ETH", "EUR"];
-    const x = await redstone.getHistoricalPrice(symbols, {
-      date: Date.now(), // Any convertable to date type
-    });
-    return res.send({
-      data: x,
-    });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
-  }
-});
-
 //getAllAssets
 // array of allowed assets
 // getCurrentPrice
