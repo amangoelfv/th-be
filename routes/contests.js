@@ -408,6 +408,40 @@ router.post("/sellOrder", async (req, res) => {
   //decrease holdings by qty
 });
 
+router.get("/buyrequest", async (req, res) => {
+  const qty = req.body.qty;
+  const rate = req.body.rate;
+  const token = req.body.token;
+  const userId = req.user.id;
+  
+  try {
+    const buy_data = await Contest.find({ _id: req.body.contestId })
+    .participants.findOne((user) => {
+      user.user_id.toString() == userId;
+    })
+
+    const buyholdings = buy_data.holdings;
+
+    buyholdings.find((holding) => {
+      if(holding.token == token){
+        if (qty * rate >= buy_data.walletAmount) {
+          buy_data.walletAmount = buy_data.walletAmount - qty * rate;
+          holding.qty -= qty;
+        }
+        else{
+          return res.status(400).json({ message: "Invalid Request" });
+        }
+      }
+    })
+
+    await buy_data.save();
+    res.status(200).json(buy_data);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+
+})
+
 module.exports = router;
 
 // assets_cache = {
@@ -425,6 +459,22 @@ module.exports = router;
 //   symbol, name, daychange, currprice // convert to inr
 //   }
 // }
+
+function updateCache(){
+  fetch('https://cryptocurrencyliveprices.com/api/', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      symbol: coin_symbol,
+      name: coin_name,
+      daychange: coin_percent_change_7d, 
+      currprice: coin_price_usd*70 // convert to inr
+    })
+  })
+}
 
 // function getAllAssets(contestId) {
 //   if (!assets_cache.data || timestamp is older than 15 minutes) {
