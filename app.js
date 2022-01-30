@@ -8,9 +8,6 @@ const bodyParser = require("body-parser");
 const userRouter = require("./routes/userRoutes");
 const contestRouter = require("./routes/contests");
 const notifs = require("./routes/notifs");
-const leaderboard = require("./routes/getLeaderboard");
-const orderbook = require("./routes/getOrderbook");
-const portfolio = require("./routes/getPortfolio");
 
 //middlewares
 const auth = require("./middleware/auth");
@@ -36,9 +33,6 @@ app.get("/", (req, res) => {
 
 app.use("/user", userRouter);
 app.use("/contests", auth, contestRouter);
-app.use("/leaderboard", auth, leaderboard);
-app.use("/orderbook", auth, orderbook);
-app.use("/portfolio", auth, portfolio);
 app.use("/news", auth, notifs);
 
 app.listen(port, () => {
