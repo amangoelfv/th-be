@@ -20,29 +20,35 @@ const registerUser = async (req, res) => {
     if (existingUser) {
       console.log(existingUser);
       let message = "E-mail already in use";
-      if (existingUser.phone === phone)
-        message = "Phone already in use";
+      if (existingUser.phone === phone) message = "Phone already in use";
       if (existingUser.phone === phone && existingUser.email === email)
         message = "Phone & Email already in use";
       return res.status(400).json({ message });
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    console.log(name, email, phone, hashedPassword);
     const userSummary = {
-		name,
-		email,
-		password: hashedPassword,
-		phone,
-		profileAvatar: 1,
-		userName: generateUsername(name, phone),
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      profileAvatar:
+        "https://res.cloudinary.com/icellnitkkr/image/upload/v1642315024/tradehunt-avatars/goqysorizlopbfpwrmjl.png",
+
+      username: generateUsername(name, phone),
     };
     const user = new User(userSummary);
     await user.save();
     const token = generateToken(user._id);
-    return res.status(200).json({ token,message:"New user registered successfully" });
+    return res.status(200).json({
+      user: userSummary,
+      token,
+      message: "New user registered successfully",
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, message: "Something went wrong", err });
+    return res
+      .status(500)
+      .json({ success: false, message: "Something went wrong", err });
   }
 };
 
@@ -54,7 +60,7 @@ const loginUser = async (req, res) => {
       res.status(400).send("Missing fields");
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (!existingUser)
       return res.status(404).json({ message: "User doesn't exist" });
 
@@ -64,7 +70,6 @@ const loginUser = async (req, res) => {
     );
     if (!isPasswordValid)
       return res.status(401).json({ message: "Invalid password" });
-
     res.status(200).json({
       user: existingUser,
       token: generateToken(existingUser._id),
@@ -107,24 +112,33 @@ const updatePassword = async (req, res) => {
 
 const updateAvatar = async (req, res) => {
   const { newAvatar } = req.body;
-  const userId = req.params.userId;
-
+  const { user } = req;
   try {
     if (!newAvatar) {
-      return res.status(400).json({ message: "Missing fields" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing fields" });
     }
 
-    const existingUser = await User.findById(userId);
+    const existingUser = await User.findById(user.id);
     if (!existingUser)
-      return res.status(404).json({ message: "User doesn't exist" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User doesn't exist" });
 
     existingUser.profileAvatar = newAvatar;
     await existingUser.save();
 
-    return res.status(200).json({ message: "Avatar updated successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Avatar updated successfully",
+      user: existingUser,
+    });
   } catch (err) {
-    return res.status(500).json({ message: "Something went wrong" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Something went wrong" });
   }
-}
+};
 
 module.exports = { registerUser, loginUser, updatePassword, updateAvatar };

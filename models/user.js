@@ -19,10 +19,10 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     profileAvatar: {
-      type: Number,
+      type: String,
       required: true,
     },
-    userName: {
+    username: {
       type: String,
       required: true,
     },

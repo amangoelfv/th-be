@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Contest = require("../models/contest");
 const currDate = new Date();
 const fetch = require("node-fetch");
+const Leaderboard = require("../models/Leaderboard");
 const allowedSymbols = {
   BTCUSDT: {
     icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/btc-bitcoin_rtptep.png",
@@ -119,7 +120,9 @@ router.get("/getActiveAndUpcomingContests", async (req, res) => {
   const { user } = req;
   const currDate = new Date();
   try {
-    const contests = await Contest.find({ endDate: { $gte: currDate } });
+    const contests = await Contest.find({
+      endDate: { $gte: currDate },
+    });
     res.status(200).send({
       success: true,
       data: contests.map((contest) => {
@@ -134,6 +137,7 @@ router.get("/getActiveAndUpcomingContests", async (req, res) => {
           desc,
           prizes,
           initialSum,
+          leaderboardId,
         } = contest;
         return {
           _id,
@@ -145,17 +149,22 @@ router.get("/getActiveAndUpcomingContests", async (req, res) => {
           desc,
           prizes,
           initialSum,
+          leaderboardId,
           active: startDate <= currDate,
-          registered: participants.findIndex(
-            (participant) => participant.user_id == user.id
-          )
-            ? true
-            : false,
+          registered:
+            participants.findIndex(
+              (participant) => participant.user_id == user.id
+            ) > 0
+              ? true
+              : false,
         };
       }),
     });
   } catch (err) {
-    res.status(500).json(err);
+    console.log(err);
+    res
+      .status(500)
+      .json({ success: false, message: "Unable to fetch contests" });
   }
 });
 
@@ -395,34 +404,33 @@ router.get("/buyrequest", async (req, res) => {
   const rate = req.body.rate;
   const token = req.body.token;
   const userId = req.user.id;
-  
+
   try {
-    const buy_data = await Contest.find({ _id: req.body.contestId })
-    .participants.findOne((user) => {
+    const buy_data = await Contest.find({
+      _id: req.body.contestId,
+    }).participants.findOne((user) => {
       user.user_id.toString() == userId;
-    })
+    });
 
     const buyholdings = buy_data.holdings;
 
     buyholdings.find((holding) => {
-      if(holding.token == token){
+      if (holding.token == token) {
         if (qty * rate >= buy_data.walletAmount) {
           buy_data.walletAmount = buy_data.walletAmount - qty * rate;
           holding.qty -= qty;
-        }
-        else{
+        } else {
           return res.status(400).json({ message: "Invalid Request" });
         }
       }
-    })
+    });
 
     await buy_data.save();
     res.status(200).json(buy_data);
   } catch (err) {
     res.status(500).json(err);
   }
-
-})
+});
 
 module.exports = router;
 
@@ -442,20 +450,20 @@ module.exports = router;
 //   }
 // }
 
-function updateCache(){
-  fetch('https://cryptocurrencyliveprices.com/api/', {
-    method: 'POST',
+function updateCache() {
+  fetch("https://cryptocurrencyliveprices.com/api/", {
+    method: "POST",
     headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       symbol: coin_symbol,
       name: coin_name,
-      daychange: coin_percent_change_7d, 
-      currprice: coin_price_usd*70 // convert to inr
-    })
-  })
+      daychange: coin_percent_change_7d,
+      currprice: coin_price_usd * 70, // convert to inr
+    }),
+  });
 }
 
 // function getAllAssets(contestId) {

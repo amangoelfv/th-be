@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 
 app.use("/user", userRouter);
 app.use("/contests", auth, contestRouter);
-app.use("/news", auth, notifs);
+app.use("/news", notifs);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Tradehunt Backend is running at http://localhost:${port}`);
