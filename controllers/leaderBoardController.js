@@ -25,18 +25,32 @@ const calculateLeaderBoard = async (id, contestId) => {
             Number(prices[holding.token]) * Number(holding.qty)
           );
         }
-        allValues.push({ user: user.user_id, portfolio: portfolio.toFixed(2) });
+        allValues.push({
+          user: user.user_id,
+          portfolio: portfolio.toFixed(2),
+          type: portfolio > contest.initialSum ? "profit" : "loss",
+        });
       }
       allValues = allValues.sort((a, b) => b.portfolio - a.portfolio);
-      const res = allValues.slice(0, 9).map((i, ind) => {
+      const res1 = allValues.slice(0, 9).map((i, ind) => {
         return {
           ...i,
           position: ind + 1,
         };
       });
-      Leaderboard.findByIdAndUpdate(id, {
-        lastUpdated: new Date(Date.now()).toISOString(),
-        leaderboard: res,
+      console.log(id);
+      Leaderboard.findOneAndUpdate(
+        { _id: id },
+        {
+          $set: {
+            leaderboard: [],
+          },
+          $set: {
+            leaderboard: res1,
+          },
+        }
+      ).then((d) => {
+        console.log(d,res1);
       });
     });
   } catch (e) {

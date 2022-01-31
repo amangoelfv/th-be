@@ -6,102 +6,22 @@ const Leaderboard = require("../models/Leaderboard");
 const {
   calculateLeaderBoard,
 } = require("../controllers/leaderBoardController");
-const allowedSymbols = {
-  BTCUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/btc-bitcoin_rtptep.png",
-    name: "Bitcoin",
-    token: "BTCUSDT",
-    currPrice: 0,
-    percentChange: 0,
-  },
-  BNBUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212922/assets-icons/bnb-binance-coin_qozs3z.png",
-    name: "Binance Coin",
-    token: "BNBUSDT",
-    currPrice: 0,
-    percentChange: 0,
-  },
-  ETHUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/eth-ethereum_c6jqsq.png",
-    name: "Ethereum",
-    token: "ETHUSDT",
-    currPrice: 0,
-    percentChange: 0,
-  },
-  ADAUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/ada-cardano_hnkupj.png",
-    name: "Cardano",
-    token: "ADAUSDT",
-    currPrice: 0,
-    percentChange: 0,
-    decimalPoints: 5,
-  },
-  XRPUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/xrp-xrp_idhvqc.png",
-    name: "XRP",
-    token: "XRPUSDT",
-    currPrice: 0,
-    percentChange: 0,
-    decimalPoints: 5,
-  },
-  SOLUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/sol-solana_zz1iti.png",
-    name: "Solana",
-    token: "SOLUSDT",
-    currPrice: 0,
-    percentChange: 0,
-  },
-  LUNAUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/luna-terra_znp0ds.png",
-    name: "Terra",
-    token: "LUNAUSDT",
-    currPrice: 0,
-    percentChange: 0,
-  },
-  DOGEUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/doge-dogecoin_utp808.png",
-    name: "Dogecoin",
-    token: "DOGEUSDT",
-    currPrice: 0,
-    percentChange: 0,
-    decimalPoints: 5,
-  },
-  AVAXUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212360/assets-icons/avax-avalanche_eujqut.png",
-    name: "Avalanche",
-    token: "AVAXUSDT",
-    currPrice: 0,
-    percentChange: 0,
-  },
-  DOTUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/dot-polkadot_ymyu1w.png",
-    name: "Polkadot",
-    token: "DOTUSDT",
-    currPrice: 0,
-    percentChange: 0,
-  },
-  MATICUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/matic-polygon_gosz18.png",
-    name: "Polygon",
-    token: "MATICUSDT",
-    currPrice: 0,
-    percentChange: 0,
-    decimalPoints: 5,
-  },
-  SHIBUSDT: {
-    icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212360/assets-icons/shib-shiba-inu_vldoev.png",
-    name: "Shiba Inu",
-    token: "SHIBUSDT",
-    currPrice: 0,
-    percentChange: 0,
-    decimalPoints: 8,
-  },
-};
+const allowedSymbols = require("../utils/allowedSymbols.json");
 router.post("/create", async (req, res) => {
   try {
     // add error handling for missing fields <--DONE
-    const newContest = new Contest(req.body);
-    await newContest.save();
+    Contest.insertMany([req.body]).then((contest) => {
+      Leaderboard.insertMany([
+        {
+          contestId: contest[0]._id,
+          leaderboard: [],
+        },
+      ]).then((data) => {
+        Contest.findByIdAndUpdate(contest[0]._id, {
+          leaderboardId: data[0]._id,
+        });
+      });
+    });
 
     res.status(200).json({
       message: "Contest Created Successfully",
@@ -119,7 +39,6 @@ router.post("/create", async (req, res) => {
 
 // get curr contests -> active & upcoming -> endDate:{$gte:currDate}
 router.get("/getActiveAndUpcomingContests", async (req, res) => {
-  console.log("hi");
   const { user } = req;
   const currDate = new Date();
   try {
@@ -245,7 +164,7 @@ router.get("/getUserPortfolio/:contestId", async (req, res) => {
             portfolio,
             walletAmount,
             success: true,
-            change: ((portfolio - initialSum) / 100).toFixed(2),
+            change: (((portfolio - initialSum) * 100) / initialSum).toFixed(2),
           });
         });
       });
@@ -273,7 +192,6 @@ router.post("/registerForContest", (req, res) => {
           .send({ success: false, err: "Invalid invite code" });
       }
       if (data.participants.findIndex((p) => p.user_d == user.id) >= 0) {
-        console.log(data.participants.findIndex((p) => p.user_d == user.id));
         return res
           .status(404)
           .send({ success: false, err: "User already registered" });
@@ -359,9 +277,7 @@ router.post("/sellOrder", async (req, res) => {
             "participants.$.walletAmount": newWalletAmt,
           },
         }
-      ).then((data) => {
-        console.log("s", data);
-      });
+      );
     } else {
       Contest.findOneAndUpdate(
         { _id: contestId, "participants.user_id": req.user.id },
@@ -380,9 +296,7 @@ router.post("/sellOrder", async (req, res) => {
             },
           },
         }
-      ).then((data) => {
-        console.log("s", data);
-      });
+      );
     }
 
     // await contest.save();
@@ -396,7 +310,7 @@ router.post("/sellOrder", async (req, res) => {
 
 router.post("/buyOrder", async (req, res) => {
   const { qty, token, rate, contestId } = req.body;
-
+  console.log(qty, token, rate, contestId);
   try {
     if (!qty || !token || !rate)
       return res
@@ -426,7 +340,6 @@ router.post("/buyOrder", async (req, res) => {
         token,
       });
     }
-    console.log(newHoldings);
     if (qty * rate < 1) {
       return res.status(400).send({
         success: false,
@@ -434,6 +347,7 @@ router.post("/buyOrder", async (req, res) => {
       });
     }
     const newWalletAmt = Seller.walletAmount - qty * rate;
+    console.log(newWalletAmt, newHoldings, req.user.id);
     Contest.findOneAndUpdate(
       { _id: contestId, "participants.user_id": req.user.id },
       {
@@ -451,12 +365,12 @@ router.post("/buyOrder", async (req, res) => {
           },
         },
       }
-    ).then((data) => {
-      console.log("s", data);
-    });
+    );
 
     // await contest.save();
-    res.status(200).json({ success: true, message: "Order sold successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: token + " bought successfully" });
   } catch (err) {
     res.status(500).json(err.message);
   }
@@ -466,16 +380,38 @@ router.post("/buyOrder", async (req, res) => {
 
 router.get("/getLeaderboard/:id", async (req, res) => {
   const { id } = req.params;
-  const data = await Leaderboard.findOne({ _id: id });
-  await calculateLeaderBoard(id, data.contestId);
-  const newData = await Leaderboard.findOne({ _id: id }).populate({
-    path: "leaderboard",
-    populate: {
-      path: "user",
-      select: "name username profileAvatar",
-    },
-  });
-  res.status(200).send({ success: true, data: newData });
+  try {
+    let data = await Leaderboard.findOne({ _id: id });
+    console.log(data.updatedAt, new Date());
+    if (data.updatedAt.getTime() < new Date().getTime() - 1000 * 60 * 15) {
+      console.log("calculating");
+      await calculateLeaderBoard(id, data.contestId);
+      data = await Leaderboard.findOne({ _id: id })
+        .populate({
+          path: "leaderboard",
+          populate: {
+            path: "user",
+            select: "name username profileAvatar",
+          },
+        })
+        .populate("contestId", "initialSum");
+    } else {
+      console.log("direct");
+      data = await Leaderboard.findOne({ _id: id })
+        .populate({
+          path: "leaderboard",
+          populate: {
+            path: "user",
+            select: "name username profileAvatar",
+          },
+        })
+        .populate("contestId", "initialSum");
+    }
+    res.status(200).send({ success: true, data });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ success: false, message: "cant get leaderboard" });
+  }
 });
 
 router.get("/getPastContests", (req, res) => {
