@@ -361,6 +361,15 @@ router.post("/sellOrder", async (req, res) => {
         $set: {
           'participants.$.holdings': newHoldings,
           'participants.$.walletAmount': newWalletAmt
+        },
+        $push: {
+          'participants.$.orders': {
+            token: token,
+            qty,
+            rate,
+            type: 'sell',
+            time: new Date()
+          }
         }
       }).then(data => {
         console.log("s", data)
@@ -421,6 +430,15 @@ router.post("/buyOrder", async (req, res) => {
       $set: {
         'participants.$.holdings': newHoldings,
         'participants.$.walletAmount': newWalletAmt
+      },
+      $push: {
+        'participants.$.orders': {
+          token: token,
+          qty,
+          rate,
+          type: 'buy',
+          time: new Date()
+        }
       }
     }).then(data => {
       console.log("s", data)
@@ -434,6 +452,13 @@ router.post("/buyOrder", async (req, res) => {
   //qty*rate add to wallet
   //decrease holdings by qty
 });
+
+router.get("/getPastContests", (req, res) => {
+  Contest.find({ endDate: { $lte: new Date() }, startDate: { $lte: new Date() } }).then(data => {
+    res.send(data)
+  })
+})
+
 
 module.exports = router;
 

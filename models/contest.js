@@ -76,10 +76,6 @@ const contestSchema = new mongoose.Schema(
           type: [],
           required: true,
         },
-        portfolio: {
-          type: Number,
-          required: true,
-        },
         holdings: {
           type: [],
           required: true,
