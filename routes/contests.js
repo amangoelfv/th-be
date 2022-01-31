@@ -370,6 +370,15 @@ router.post("/sellOrder", async (req, res) => {
             "participants.$.holdings": newHoldings,
             "participants.$.walletAmount": newWalletAmt,
           },
+          $push: {
+            "participants.$.orders": {
+              token: token,
+              qty,
+              rate,
+              type: "sell",
+              time: new Date(),
+            },
+          },
         }
       ).then((data) => {
         console.log("s", data);
@@ -432,6 +441,15 @@ router.post("/buyOrder", async (req, res) => {
           "participants.$.holdings": newHoldings,
           "participants.$.walletAmount": newWalletAmt,
         },
+        $push: {
+          "participants.$.orders": {
+            token: token,
+            qty,
+            rate,
+            type: "buy",
+            time: new Date(),
+          },
+        },
       }
     ).then((data) => {
       console.log("s", data);
@@ -454,10 +472,19 @@ router.get("/getLeaderboard/:id", async (req, res) => {
     path: "leaderboard",
     populate: {
       path: "user",
-      select: "name username profileAvatar"
+      select: "name username profileAvatar",
     },
   });
   res.status(200).send({ success: true, data: newData });
+});
+
+router.get("/getPastContests", (req, res) => {
+  Contest.find({
+    endDate: { $lte: new Date() },
+    startDate: { $lte: new Date() },
+  }).then((data) => {
+    res.send(data);
+  });
 });
 
 module.exports = router;
