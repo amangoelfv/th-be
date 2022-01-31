@@ -1,0 +1,91 @@
+{
+  "BTCUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/btc-bitcoin_rtptep.png",
+    "name": "Bitcoin",
+    "token": "BTCUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "BNBUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212922/assets-icons/bnb-binance-coin_qozs3z.png",
+    "name": "Binance Coin",
+    "token": "BNBUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "ETHUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/eth-ethereum_c6jqsq.png",
+    "name": "Ethereum",
+    "token": "ETHUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "ADAUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/ada-cardano_hnkupj.png",
+    "name": "Cardano",
+    "token": "ADAUSDT",
+    "currPrice": 0,
+    "percentChange": 0,
+    "decimalPoints": 5
+  },
+  "XRPUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/xrp-xrp_idhvqc.png",
+    "name": "XRP",
+    "token": "XRPUSDT",
+    "currPrice": 0,
+    "percentChange": 0,
+    "decimalPoints": 5
+  },
+  "SOLUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/sol-solana_zz1iti.png",
+    "name": "Solana",
+    "token": "SOLUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "LUNAUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/luna-terra_znp0ds.png",
+    "name": "Terra",
+    "token": "LUNAUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "DOGEUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/doge-dogecoin_utp808.png",
+    "name": "Dogecoin",
+    "token": "DOGEUSDT",
+    "currPrice": 0,
+    "percentChange": 0,
+    "decimalPoints": 5
+  },
+  "AVAXUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212360/assets-icons/avax-avalanche_eujqut.png",
+    "name": "Avalanche",
+    "token": "AVAXUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "DOTUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/dot-polkadot_ymyu1w.png",
+    "name": "Polkadot",
+    "token": "DOTUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "MATICUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/matic-polygon_gosz18.png",
+    "name": "Polygon",
+    "token": "MATICUSDT",
+    "currPrice": 0,
+    "percentChange": 0,
+    "decimalPoints": 5
+  },
+  "SHIBUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212360/assets-icons/shib-shiba-inu_vldoev.png",
+    "name": "Shiba Inu",
+    "token": "SHIBUSDT",
+    "currPrice": 0,
+    "percentChange": 0,
+    "decimalPoints": 8
+  }
+}

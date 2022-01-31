@@ -5,6 +5,10 @@ const leaderBoardSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "contest",
   },
+  lastUpdated: {
+    type: mongoose.Schema.Types.Date,
+    required: true
+  },
   leaderboard: {
     type: [
       {
@@ -15,6 +19,10 @@ const leaderBoardSchema = new mongoose.Schema({
         user: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
+        },
+        portfolio: {
+          type: Number,
+          required: true,
         },
       },
     ],

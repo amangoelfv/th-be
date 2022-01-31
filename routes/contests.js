@@ -3,6 +3,9 @@ const Contest = require("../models/contest");
 const currDate = new Date();
 const fetch = require("node-fetch");
 const Leaderboard = require("../models/Leaderboard");
+const {
+  calculateLeaderBoard,
+} = require("../controllers/leaderBoardController");
 const allowedSymbols = {
   BTCUSDT: {
     icon: "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/btc-bitcoin_rtptep.png",
@@ -344,27 +347,33 @@ router.post("/sellOrder", async (req, res) => {
     }
     const newWalletAmt = Seller.walletAmount + qty * rate;
     if (holding.qty.toFixed(5) == 0) {
-      Contest.findOneAndUpdate({ _id: contestId, 'participants.user_id': req.user.id }, {
-        $pull: {
-          'participants.$.holdings': {
-            token: token
-          }
-        },
-        $set: {
-          'participants.$.walletAmount': newWalletAmt
+      Contest.findOneAndUpdate(
+        { _id: contestId, "participants.user_id": req.user.id },
+        {
+          $pull: {
+            "participants.$.holdings": {
+              token: token,
+            },
+          },
+          $set: {
+            "participants.$.walletAmount": newWalletAmt,
+          },
         }
-      }).then(data => {
-        console.log("s", data)
-      })
+      ).then((data) => {
+        console.log("s", data);
+      });
     } else {
-      Contest.findOneAndUpdate({ _id: contestId, 'participants.user_id': req.user.id }, {
-        $set: {
-          'participants.$.holdings': newHoldings,
-          'participants.$.walletAmount': newWalletAmt
+      Contest.findOneAndUpdate(
+        { _id: contestId, "participants.user_id": req.user.id },
+        {
+          $set: {
+            "participants.$.holdings": newHoldings,
+            "participants.$.walletAmount": newWalletAmt,
+          },
         }
-      }).then(data => {
-        console.log("s", data)
-      })
+      ).then((data) => {
+        console.log("s", data);
+      });
     }
 
     // await contest.save();
@@ -375,7 +384,6 @@ router.post("/sellOrder", async (req, res) => {
   //qty*rate add to wallet
   //decrease holdings by qty
 });
-
 
 router.post("/buyOrder", async (req, res) => {
   const { qty, token, rate, contestId } = req.body;
@@ -406,10 +414,10 @@ router.post("/buyOrder", async (req, res) => {
     if (!holding) {
       newHoldings.push({
         qty,
-        token
-      })
+        token,
+      });
     }
-    console.log(newHoldings)
+    console.log(newHoldings);
     if (qty * rate < 1) {
       return res.status(400).send({
         success: false,
@@ -417,22 +425,39 @@ router.post("/buyOrder", async (req, res) => {
       });
     }
     const newWalletAmt = Seller.walletAmount - qty * rate;
-    Contest.findOneAndUpdate({ _id: contestId, 'participants.user_id': req.user.id }, {
-      $set: {
-        'participants.$.holdings': newHoldings,
-        'participants.$.walletAmount': newWalletAmt
+    Contest.findOneAndUpdate(
+      { _id: contestId, "participants.user_id": req.user.id },
+      {
+        $set: {
+          "participants.$.holdings": newHoldings,
+          "participants.$.walletAmount": newWalletAmt,
+        },
       }
-    }).then(data => {
-      console.log("s", data)
-    })
+    ).then((data) => {
+      console.log("s", data);
+    });
 
     // await contest.save();
-    res.status(200).json({ message: "Order sold successfully" });
+    res.status(200).json({ success: true, message: "Order sold successfully" });
   } catch (err) {
     res.status(500).json(err.message);
   }
   //qty*rate add to wallet
   //decrease holdings by qty
+});
+
+router.get("/getLeaderboard/:id", async (req, res) => {
+  const { id } = req.params;
+  const data = await Leaderboard.findOne({ _id: id });
+  await calculateLeaderBoard(id, data.contestId);
+  const newData = await Leaderboard.findOne({ _id: id }).populate({
+    path: "leaderboard",
+    populate: {
+      path: "user",
+      select: "name username profileAvatar"
+    },
+  });
+  res.status(200).send({ success: true, data: newData });
 });
 
 module.exports = router;
