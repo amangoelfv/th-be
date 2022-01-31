@@ -227,7 +227,7 @@ router.post("/registerForContest", (req, res) => {
 
 router.post("/sellOrder", async (req, res) => {
   const { qty, token, rate, contestId } = req.body;
-
+  console.log(qty, token, rate, contestId);
   try {
     if (!qty || !token || !rate)
       return res
@@ -264,6 +264,7 @@ router.post("/sellOrder", async (req, res) => {
       });
     }
     const newWalletAmt = Seller.walletAmount + qty * rate;
+    console.log(holding)
     if (holding.qty.toFixed(5) == 0) {
       Contest.findOneAndUpdate(
         { _id: contestId, "participants.user_id": req.user.id },
@@ -276,8 +277,19 @@ router.post("/sellOrder", async (req, res) => {
           $set: {
             "participants.$.walletAmount": newWalletAmt,
           },
+          $push: {
+            "participants.$.orders": {
+              token: token,
+              qty,
+              rate,
+              type: "sell",
+              time: new Date(),
+            },
+          }
         }
-      );
+      ).then(data => {
+        console.log(data)
+      });
     } else {
       Contest.findOneAndUpdate(
         { _id: contestId, "participants.user_id": req.user.id },
@@ -296,7 +308,9 @@ router.post("/sellOrder", async (req, res) => {
             },
           },
         }
-      );
+      ).then(data => {
+        console.log(data)
+      });
     }
 
     // await contest.save();
@@ -365,7 +379,7 @@ router.post("/buyOrder", async (req, res) => {
           },
         },
       }
-    );
+    ).then(data => { console.log(data) });
 
     // await contest.save();
     res

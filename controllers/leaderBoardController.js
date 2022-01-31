@@ -50,7 +50,7 @@ const calculateLeaderBoard = async (id, contestId) => {
           },
         }
       ).then((d) => {
-        console.log(d,res1);
+        console.log(d, res1);
       });
     });
   } catch (e) {
