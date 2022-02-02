@@ -7,10 +7,11 @@ const {
   calculateLeaderBoard,
 } = require("../controllers/leaderBoardController");
 const allowedSymbols = require("../utils/allowedSymbols.json");
-router.post("/create", async (req, res) => {
+
+router.post("/create", async(req, res) => {
   try {
-    // add error handling for missing fields <--DONE
-    Contest.insertMany([req.body]).then((contest) => {
+  //  add error handling for missing fields <--DONE
+    await Contest.insertMany([req.body]).then((contest) => {
       Leaderboard.insertMany([
         {
           contestId: contest[0]._id,
@@ -22,10 +23,9 @@ router.post("/create", async (req, res) => {
         });
       });
     });
-
     res.status(200).json({
       message: "Contest Created Successfully",
-      data: { newContest },
+      data: { Contest },
     });
   } catch (err) {
     res.status(err.status || 500).json({
