@@ -57,7 +57,6 @@ const contestSchema = new mongoose.Schema(
     userTokens: [
       {
         type: String,
-        unique: true,
       },
     ],
     participants: [
@@ -66,7 +65,6 @@ const contestSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
           required: true,
-          unique: true,
         },
         walletAmount: {
           type: Number,
