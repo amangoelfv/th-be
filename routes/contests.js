@@ -115,6 +115,25 @@ router.get("/past", async (req, res) => {
 //createOrder
 ///getHistory
 
+router.get("/getOrderHistory/:contestId", async (req, res) => {
+  const { user } = req;
+  const { contestId } = req.params;
+  try {
+    Contest.findOne({ _id: contestId }).then((contest) => {
+      const userObj = contest.participants.find((u) => u.user_id == user.id);
+      res.status(200).send({
+        success: true,
+        history: userObj.orders,
+      });
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      error: e,
+    });
+  }
+});
+
 router.get("/getHoldings/:contestId", async (req, res) => {
   const { user } = req;
   const { contestId } = req.params;
@@ -125,6 +144,35 @@ router.get("/getHoldings/:contestId", async (req, res) => {
         success: true,
         holdings: userObj.holdings,
         walletAmount: userObj.walletAmount,
+      });
+    });
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      error: e,
+    });
+  }
+});
+
+router.get("/getAssetDetails/:contestId/:token", async (req, res) => {
+  const { user } = req;
+  const { contestId, token } = req.params;
+  console.log(token, contestId, user);
+  try {
+    Contest.findOne({ _id: contestId }).then((contest) => {
+      const userObj = contest.participants.find(
+        (usr) => usr.user_id == user.id
+      );
+      const walletAmount = userObj.walletAmount;
+      const holdings = userObj.holdings.find(
+        (holding) => holding.token == token
+      );
+      res.status(200).send({
+        success: true,
+        data: {
+          holdings,
+          walletAmount,
+        },
       });
     });
   } catch (e) {
@@ -264,7 +312,7 @@ router.post("/sellOrder", async (req, res) => {
       });
     }
     const newWalletAmt = Seller.walletAmount + qty * rate;
-    console.log(holding)
+    console.log(holding);
     if (holding.qty.toFixed(5) == 0) {
       Contest.findOneAndUpdate(
         { _id: contestId, "participants.user_id": req.user.id },
@@ -285,10 +333,10 @@ router.post("/sellOrder", async (req, res) => {
               type: "sell",
               time: new Date(),
             },
-          }
+          },
         }
-      ).then(data => {
-        console.log(data)
+      ).then((data) => {
+        console.log(data);
       });
     } else {
       Contest.findOneAndUpdate(
@@ -308,13 +356,13 @@ router.post("/sellOrder", async (req, res) => {
             },
           },
         }
-      ).then(data => {
-        console.log(data)
+      ).then((data) => {
+        console.log(data);
       });
     }
 
     // await contest.save();
-    res.status(200).json({ message: "Order sold successfully" });
+    res.status(200).json({ success: true, message: "Order sold successfully" });
   } catch (err) {
     res.status(500).json(err.message);
   }
@@ -343,7 +391,7 @@ router.post("/buyOrder", async (req, res) => {
     var newHoldings = Seller.holdings.map((i) => {
       if (i.token == token) {
         return {
-          qty: holding.qty + qty,
+          qty: Number(Number(holding.qty) + Number(qty)),
           token,
         };
       } else return i;
@@ -379,7 +427,9 @@ router.post("/buyOrder", async (req, res) => {
           },
         },
       }
-    ).then(data => { console.log(data) });
+    ).then((data) => {
+      console.log(data);
+    });
 
     // await contest.save();
     res
@@ -392,13 +442,30 @@ router.post("/buyOrder", async (req, res) => {
   //decrease holdings by qty
 });
 
+router.get("/getPastLeaderboard/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const contest = await Leaderboard.findOne({ _id: id })
+      .populate({
+        path: "leaderboard",
+        populate: {
+          path: "user",
+          select: "name username profileAvatar",
+        },
+      })
+      .populate("contestId", "initialSum");
+    res.status(200).json({ success: true, data: contest });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 router.get("/getLeaderboard/:id", async (req, res) => {
   const { id } = req.params;
   try {
     let data = await Leaderboard.findOne({ _id: id });
     console.log(data.updatedAt, new Date());
     if (data.updatedAt.getTime() < new Date().getTime() - 1000 * 60 * 15) {
-      console.log("calculating");
       await calculateLeaderBoard(id, data.contestId);
       data = await Leaderboard.findOne({ _id: id })
         .populate({
@@ -410,7 +477,6 @@ router.get("/getLeaderboard/:id", async (req, res) => {
         })
         .populate("contestId", "initialSum");
     } else {
-      console.log("direct");
       data = await Leaderboard.findOne({ _id: id })
         .populate({
           path: "leaderboard",
@@ -432,9 +498,13 @@ router.get("/getPastContests", (req, res) => {
   Contest.find({
     endDate: { $lte: new Date() },
     startDate: { $lte: new Date() },
-  }).then((data) => {
-    res.send(data);
-  });
+  })
+    .then((data) => {
+      res.send({ success: true, data });
+    })
+    .catch((err) => {
+      res.send({ success: false, err });
+    });
 });
 
 module.exports = router;

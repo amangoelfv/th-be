@@ -5,8 +5,8 @@ const User = require("../models/user");
 const { generateUsername } = require("../utils/helpers");
 
 const registerUser = async (req, res) => {
-  const { name, email, password, phone } = req.body;
-  console.log(name, email, password, phone);
+  const { name, email, password, phone, fcm } = req.body;
+  console.log(name, email, password, phone,fcm);
   try {
     if (!(email && password && phone && name)) {
       return res.status(400).send({
@@ -32,6 +32,7 @@ const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       phone,
+      fcm,
       profileAvatar:
         "https://res.cloudinary.com/icellnitkkr/image/upload/v1642315024/tradehunt-avatars/goqysorizlopbfpwrmjl.png",
 
