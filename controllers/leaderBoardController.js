@@ -19,7 +19,7 @@ const calculateLeaderBoard = async (id, contestId) => {
     }).then((contest) => {
       let allValues = [];
       for (let user of contest.participants) {
-        if (user.order.length > 0) {
+        if (user.orders.length > 0) {
           let portfolio = Number(user.walletAmount);
           for (let holding of user.holdings) {
             portfolio += Number(
