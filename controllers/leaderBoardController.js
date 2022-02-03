@@ -19,17 +19,19 @@ const calculateLeaderBoard = async (id, contestId) => {
     }).then((contest) => {
       let allValues = [];
       for (let user of contest.participants) {
-        let portfolio = Number(user.walletAmount);
-        for (let holding of user.holdings) {
-          portfolio += Number(
-            Number(prices[holding.token]) * Number(holding.qty)
-          );
+        if (user.order.length > 0) {
+          let portfolio = Number(user.walletAmount);
+          for (let holding of user.holdings) {
+            portfolio += Number(
+              Number(prices[holding.token]) * Number(holding.qty)
+            );
+          }
+          allValues.push({
+            user: user.user_id,
+            portfolio: portfolio.toFixed(2),
+            type: portfolio > contest.initialSum ? "profit" : "loss",
+          });
         }
-        allValues.push({
-          user: user.user_id,
-          portfolio: portfolio.toFixed(2),
-          type: portfolio > contest.initialSum ? "profit" : "loss",
-        });
       }
       allValues = allValues.sort((a, b) => b.portfolio - a.portfolio);
       const res1 = allValues.slice(0, 9).map((i, ind) => {
@@ -38,7 +40,6 @@ const calculateLeaderBoard = async (id, contestId) => {
           position: ind + 1,
         };
       });
-      console.log(id);
       Leaderboard.findOneAndUpdate(
         { _id: id },
         {

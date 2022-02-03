@@ -61,6 +61,7 @@ router.get("/getActiveAndUpcomingContests", async (req, res) => {
         prizes,
         initialSum,
         leaderboardId,
+        promotion
       } = contest;
       console.log(user.id, participants);
       return {
@@ -74,6 +75,7 @@ router.get("/getActiveAndUpcomingContests", async (req, res) => {
         prizes,
         initialSum,
         leaderboardId,
+        promotion,
         active: startDate <= currDate,
         registered:
           participants.findIndex(
