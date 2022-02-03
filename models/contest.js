@@ -54,11 +54,9 @@ const contestSchema = new mongoose.Schema(
     // email: akjh,
     // userToken: "87638"
     // }]
-    userTokens: [
-      {
-        type: String,
-      },
-    ],
+    userTokens: {
+      type: [String],
+    },
     participants: [
       {
         user_id: {

@@ -8,9 +8,9 @@ const {
 } = require("../controllers/leaderBoardController");
 const allowedSymbols = require("../utils/allowedSymbols.json");
 
-router.post("/create", async(req, res) => {
+router.post("/create", async (req, res) => {
   try {
-  //  add error handling for missing fields <--DONE
+    //  add error handling for missing fields <--DONE
     await Contest.insertMany([req.body]).then((contest) => {
       Leaderboard.insertMany([
         {
@@ -18,8 +18,11 @@ router.post("/create", async(req, res) => {
           leaderboard: [],
         },
       ]).then((data) => {
+        console.log(data);
         Contest.findByIdAndUpdate(contest[0]._id, {
           leaderboardId: data[0]._id,
+        }).then((data1) => {
+          console.log(data1);
         });
       });
     });
@@ -45,42 +48,44 @@ router.get("/getActiveAndUpcomingContests", async (req, res) => {
     const contests = await Contest.find({
       endDate: { $gte: currDate },
     });
+    const data = contests.map((contest) => {
+      const {
+        _id,
+        title,
+        organiser,
+        startDate,
+        endDate,
+        coverImg,
+        participants,
+        desc,
+        prizes,
+        initialSum,
+        leaderboardId,
+      } = contest;
+      console.log(user.id, participants);
+      return {
+        _id,
+        title,
+        organiser,
+        startDate,
+        endDate,
+        coverImg,
+        desc,
+        prizes,
+        initialSum,
+        leaderboardId,
+        active: startDate <= currDate,
+        registered:
+          participants.findIndex(
+            (participant) => participant.user_id == user.id
+          ) >= 0
+            ? true
+            : false,
+      };
+    });
     res.status(200).send({
       success: true,
-      data: contests.map((contest) => {
-        const {
-          _id,
-          title,
-          organiser,
-          startDate,
-          endDate,
-          coverImg,
-          participants,
-          desc,
-          prizes,
-          initialSum,
-          leaderboardId,
-        } = contest;
-        return {
-          _id,
-          title,
-          organiser,
-          startDate,
-          endDate,
-          coverImg,
-          desc,
-          prizes,
-          initialSum,
-          leaderboardId,
-          active: startDate <= currDate,
-          registered:
-            participants.findIndex(
-              (participant) => participant.user_id == user.id
-            ) > 0
-              ? true
-              : false,
-        };
-      }),
+      data,
     });
   } catch (err) {
     console.log(err);
