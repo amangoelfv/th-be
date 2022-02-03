@@ -9,7 +9,7 @@ function makeid(length) {
   return result;
 }
 const generateUsername = (name, phone) => {
-  const firstName = name.split(" ")[0];
+  const firstName = name.substring(0, 4);
   const num = phone.substring(0, 2);
   const x = makeid(2);
   return firstName + num + x;
