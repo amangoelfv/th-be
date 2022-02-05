@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const Contest = require("../models/contest");
-const currDate = new Date();
-const fetch = require("node-fetch");
+const fetch = import("node-fetch");
 const Leaderboard = require("../models/Leaderboard");
 const {
   calculateLeaderBoard,
@@ -101,6 +100,7 @@ router.get("/getActiveAndUpcomingContests", async (req, res) => {
 //get past contests
 router.get("/past", async (req, res) => {
   try {
+    const currDate = new Date();
     const pastContest = await Contest.find({ endDate: { $lt: currDate } });
     res.status(200).json(pastContest);
   } catch (err) {

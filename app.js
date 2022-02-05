@@ -7,11 +7,12 @@ const bodyParser = require("body-parser");
 //routes
 const userRouter = require("./routes/userRoutes");
 const contestRouter = require("./routes/contests");
+const adminRouter = require("./routes/admin");
 const notifs = require("./routes/notifs");
 
 //middlewares
 const auth = require("./middleware/auth");
-
+const admin = require("./middleware/admin");
 const port = 3000;
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.get("/", (req, res) => {
 app.use("/user", userRouter);
 app.use("/contests", auth, contestRouter);
 app.use("/news", notifs);
+app.use("/admin", adminRouter);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Tradehunt Backend is running at http://localhost:${port}`);

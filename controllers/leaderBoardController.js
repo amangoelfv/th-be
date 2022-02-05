@@ -1,6 +1,6 @@
 const Contest = require("../models/contest");
 const allowedSymbols = require("../utils/allowedSymbols.json");
-const fetch = require("node-fetch");
+const fetch = import("node-fetch");
 const Leaderboard = require("../models/Leaderboard");
 
 const calculateLeaderBoard = async (id, contestId) => {
