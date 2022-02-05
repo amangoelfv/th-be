@@ -75,6 +75,7 @@ router.get("/getActiveAndUpcomingContests", async (req, res) => {
         leaderboardId,
         promotion: contest._doc.promotion,
         active: startDate <= currDate,
+        users: participants.length,
         registered:
           participants.findIndex(
             (participant) => participant.user_id == user.id
