@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const Contest = require("../models/contest");
-const fetch = import("node-fetch");
+const fetch = require("node-fetch");
 const Leaderboard = require("../models/Leaderboard");
 const {
   calculateLeaderBoard,
