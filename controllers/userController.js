@@ -6,7 +6,7 @@ const { generateUsername } = require("../utils/helpers");
 
 const registerUser = async (req, res) => {
   const { name, email, password, phone, fcm } = req.body;
-  console.log(name, email, password, phone,fcm);
+  console.log(name, email, password, phone, fcm);
   try {
     if (!(email && password && phone && name)) {
       return res.status(400).send({
@@ -14,11 +14,11 @@ const registerUser = async (req, res) => {
         message: "Please enter all fields",
       });
     }
+    const em = email.toLowerCase();
     const existingUser = await User.findOne({
-      $or: [{ email }, { phone }],
+      $or: [{ email: em }, { phone }],
     });
     if (existingUser) {
-      console.log(existingUser);
       let message = "E-mail already in use";
       if (existingUser.phone === phone) message = "Phone already in use";
       if (existingUser.phone === phone && existingUser.email === email)
@@ -29,7 +29,7 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const userSummary = {
       name,
-      email,
+      email: em,
       password: hashedPassword,
       phone,
       fcm,
