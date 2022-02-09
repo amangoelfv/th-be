@@ -468,7 +468,6 @@ router.get("/getLeaderboard/:id", async (req, res) => {
   const { id } = req.params;
   try {
     let data = await Leaderboard.findOne({ _id: id });
-    console.log(data.updatedAt, new Date());
     if (data.updatedAt.getTime() < new Date().getTime() - 1000 * 60 * 15) {
       await calculateLeaderBoard(id, data.contestId);
       data = await Leaderboard.findOne({ _id: id })

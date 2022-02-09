@@ -1,10 +1,10 @@
 const Contest = require("../models/contest");
-const allowedSymbols = require("../utils/allowedSymbols.json");
+const all = require("../utils/allSymbols.json");
 const fetch = require("node-fetch");
 const Leaderboard = require("../models/Leaderboard");
 
 const calculateLeaderBoard = async (id, contestId) => {
-  const symbols = Object.keys(allowedSymbols);
+  const symbols = Object.keys(all);
   try {
     const res = await fetch("https://api.binance.com/api/v3/ticker/price");
     const data = await res.json();
