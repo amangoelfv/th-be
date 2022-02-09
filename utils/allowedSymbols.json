@@ -36,13 +36,6 @@
     "percentChange": 0,
     "decimalPoints": 5
   },
-  "SOLUSDT": {
-    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/sol-solana_zz1iti.png",
-    "name": "Solana",
-    "token": "SOLUSDT",
-    "currPrice": 0,
-    "percentChange": 0
-  },
   "LUNAUSDT": {
     "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1643212359/assets-icons/luna-terra_znp0ds.png",
     "name": "Terra",
@@ -87,5 +80,48 @@
     "currPrice": 0,
     "percentChange": 0,
     "decimalPoints": 8
+  },
+  "LTCUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1644429276/assets-icons/ltc-litecoin_uu3nzw.png",
+    "name": "Litecoin",
+    "token": "LTCUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "ATOMUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1644429275/assets-icons/atom-cosmos_o9jopl.png",
+    "name": "Cosmos",
+    "token": "ATOMUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "NEARUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1644429275/assets-icons/near-near-protocol_uhzuiy.png",
+    "name": "Near Protocol",
+    "token": "NEARUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "TRXUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1644429275/assets-icons/trx-tron_wvpezd.png",
+    "name": "Tron",
+    "token": "TRXUSDT",
+    "currPrice": 0,
+    "percentChange": 0,
+    "decimalPoints": 4
+  },
+  "UNIUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1644429275/assets-icons/uni-uniswap_o2orz7.png",
+    "name": "Uniswap",
+    "token": "UNIUSDT",
+    "currPrice": 0,
+    "percentChange": 0
+  },
+  "MANAUSDT": {
+    "icon": "https://res.cloudinary.com/icellnitkkr/image/upload/v1644430397/assets-icons/mana-decentraland_kevhga.png",
+    "name": "Decentraland ",
+    "token": "MANAUSDT",
+    "currPrice": 0,
+    "percentChange": 0
   }
 }

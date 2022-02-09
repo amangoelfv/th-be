@@ -7,6 +7,10 @@ const {
 } = require("../controllers/leaderBoardController");
 const allowedSymbols = require("../utils/allowedSymbols.json");
 
+router.get("/getAllowedSymbols", async (req, res) => {
+  res.status(200).json({ success: true, allowedSymbols });
+});
+
 router.post("/create", async (req, res) => {
   try {
     //  add error handling for missing fields <--DONE
@@ -17,7 +21,6 @@ router.post("/create", async (req, res) => {
           leaderboard: [],
         },
       ]).then((data) => {
-        console.log(data);
         Contest.findByIdAndUpdate(contest[0]._id, {
           leaderboardId: data[0]._id,
         }).then((data1) => {
