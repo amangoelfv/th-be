@@ -253,11 +253,6 @@ router.post("/registerForContest", (req, res) => {
       Contest.findOneAndUpdate(
         { _id: contestId },
         {
-          $pull: {
-            userTokens: {
-              $in: [inviteCode],
-            },
-          },
           $push: {
             participants: {
               user_id: user.id,
